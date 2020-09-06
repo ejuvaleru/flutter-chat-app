@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+
+import 'package:chat_app/src/services/auth_service.dart';
 import 'package:chat_app/src/models/usuario.dart';
 
 class UsuariosPage extends StatefulWidget {
@@ -19,10 +22,14 @@ class _UsuariosPageState extends State<UsuariosPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    final authService = Provider.of<AuthService>(context);
+    final Usuario currentUser = authService.usuario;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Mi name',
+          currentUser.nombre,
           style: TextStyle(color: Colors.black54),
         ),
         elevation: 1,
@@ -32,7 +39,11 @@ class _UsuariosPageState extends State<UsuariosPage> {
             Icons.exit_to_app,
             color: Colors.black54,
           ),
-          onPressed: () {},
+          onPressed: () {
+            // Desconectarse del socket server
+            Navigator.pushReplacementNamed(context, 'login');
+            AuthService.deleteToken();
+          },
         ),
         actions: [
           Container(

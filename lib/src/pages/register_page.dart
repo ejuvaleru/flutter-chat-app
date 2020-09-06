@@ -1,9 +1,12 @@
-import 'package:chat_app/src/widgets/boton_azul.dart';
+import 'package:chat_app/src/helpers/mostrar_alerta.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:chat_app/src/widgets/logo.dart';
 import 'package:chat_app/src/widgets/custom_input.dart';
 import 'package:chat_app/src/widgets/labels.dart';
+import 'package:chat_app/src/services/auth_service.dart';
+import 'package:chat_app/src/widgets/boton_azul.dart';
 
 class RegisterPage extends StatelessWidget {
   @override
@@ -56,6 +59,7 @@ class __FormState extends State<_Form> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
     return Container(
       margin: EdgeInsets.only(top: 30.0),
       padding: EdgeInsets.symmetric(horizontal: 40.0),
@@ -80,13 +84,27 @@ class __FormState extends State<_Form> {
             textEditingController: passCtrl,
             isPassword: true,
           ),
-          BotonAzul(label: 'Iniciar', onPressed: imprimirValores)
+          BotonAzul(
+            label: 'Iniciar',
+            onPressed: authService.estaAutenticando
+                ? null
+                : () async {
+                    final registroOk =
+                        await authService.registerWithEmailAndPassword(
+                            this.nameCtrl.text.trim(),
+                            this.emailCtrl.text.trim(),
+                            this.passCtrl.text.trim());
+
+                    if (registroOk == true) {
+                      // TODO: conectar al socket server+
+                      Navigator.pushReplacementNamed(context, 'usuarios');
+                    } else {
+                      mostrarAlerta(context, 'Error', registroOk);
+                    }
+                  },
+          ),
         ],
       ),
     );
-  }
-
-  void imprimirValores() {
-    print('${this.emailCtrl.text}');
   }
 }
